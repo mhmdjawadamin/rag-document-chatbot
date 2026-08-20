@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Uploaded documents
+uploads/*
+!uploads/.gitkeep
+
+# VS Code
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
