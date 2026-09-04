@@ -66,8 +66,8 @@ async def upload_document(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     try:
-        # Extract text
-        pages = extract_text_from_pdf(file_path)
+        # Extract text and PDF information
+        pdf_data = extract_text_from_pdf(file_path)
 
     except Exception as error:
         file_path.unlink(missing_ok=True)
@@ -80,7 +80,10 @@ async def upload_document(file: UploadFile = File(...)):
     return {
         "document_id": document_id,
         "filename": file.filename,
-        "total_pages": len(pages),
-        "pages": pages
+        "total_pages": pdf_data["total_pages"],
+        "has_extractable_text": pdf_data["has_extractable_text"],
+        "pages": pdf_data["pages"]
     }
+
+    
 
