@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>RAG Document Chatbot - Test</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+
+      button {
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+      }
+
+      .chunk {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 8px;
+      }
+
+      .chunk h3 {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>RAG Document Chatbot</h1>
+    <p>Temporary development interface</p>
+
+    <input type="file" id="pdfFile" accept=".pdf" />
+
+    <br />
+
+    <button onclick="uploadPDF()">Upload & Process</button>
+
+    <p id="status"></p>
+
+    <div id="results"></div>
+
+    <script>
+      async function uploadPDF() {
+        const fileInput = document.getElementById("pdfFile");
+        const status = document.getElementById("status");
+        const results = document.getElementById("results");
+
+        if (!fileInput.files.length) {
+          alert("Please select a PDF first.");
+          return;
+        }
+
+        const file = fileInput.files[0];
+
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        status.innerText = "Processing PDF...";
+        results.innerHTML = "";
+
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/documents/upload",
+            {
+              method: "POST",
+              body: formData,
+            },
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            status.innerText = "Upload failed.";
+            console.log(data);
+            return;
+          }
+
+          status.innerText = `Success - ${data.chunk_count} chunks created`;
+
+          data.chunks.forEach((chunk) => {
+            const div = document.createElement("div");
+
+            div.className = "chunk";
+
+            div.innerHTML = `
+                        <h3>Chunk ${chunk.chunk_id}</h3>
+
+                        <strong>Section:</strong>
+                        ${chunk.section}
+
+                        <br><br>
+
+                        <strong>Text:</strong>
+
+                        <p>${chunk.text}</p>
+                    `;
+
+            results.appendChild(div);
+          });
+        } catch (error) {
+          status.innerText = "Could not connect to backend.";
+
+          console.error(error);
+        }
+      }
+    </script>
+  </body>
+</html>
